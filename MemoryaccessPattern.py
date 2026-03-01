@@ -1,7 +1,7 @@
 import numpy as np
 import time
 
-N = 5000
+N = 10000
 A = np.random.rand(N, N)
 
 
