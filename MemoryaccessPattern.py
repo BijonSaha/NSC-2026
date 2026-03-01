@@ -30,3 +30,16 @@ print(f"Row sums:    {t_row:.4f}s")
 print(f"Column sums: {t_col:.4f}s")
 print(f"Column is {t_col/t_row:.2f}x slower than row")
 
+A_f = np.asfortranarray(A)   # convert to column-major
+
+t0 = time.perf_counter()
+row_sum(A_f, N)
+t_row_f = time.perf_counter() - t0
+
+t0 = time.perf_counter()
+column_sum(A_f, N)
+t_col_f = time.perf_counter() - t0
+
+print(f"\nFortran array:")
+print(f"Row sums:    {t_row_f:.4f}s")
+print(f"Column sums: {t_col_f:.4f}s")
