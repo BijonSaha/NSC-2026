@@ -91,3 +91,6 @@ if __name__ == '__main__':
         t_par = statistics.median(times)
         speedup = t_serial / t_par
         print(f"{n_workers:2d} workers: {t_par:.3f}s, speedup={speedup:.2f}x,  eff={speedup/n_workers*100:.0f}%")
+
+
+
