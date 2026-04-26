@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LogNorm
 
 # --- Parameters ---
 N        = 512
@@ -46,4 +47,54 @@ plt.xlabel('Re(c)')
 plt.ylabel('Im(c)')
 plt.tight_layout()
 plt.savefig('mandelbrot_trajectory_divergence.png', dpi=150)
+plt.show()
+
+
+
+# MP3 M2 — Mandelbrot Sensitivity Map (Condition Number)
+
+
+eps32 = float(np.finfo(np.float32).eps)
+delta = np.maximum(eps32 * np.abs(C64), 1e-10)
+
+# --- Escape count function ---
+def escape_count(C, max_iter):
+    z   = np.zeros_like(C)
+    cnt = np.full(C.shape, max_iter, dtype=np.int32)
+    esc = np.zeros(C.shape, dtype=bool)
+    for k in range(max_iter):
+        z[~esc]    = z[~esc] ** 2 + C[~esc]
+        newly      = ~esc & (np.abs(z) > 2.0)
+        cnt[newly] = k
+        esc[newly] = True
+    return cnt
+
+# --- Compute base and perturbed escape counts ---
+n_base    = escape_count(C64,         MAX_ITER).astype(float)
+n_perturb = escape_count(C64 + delta, MAX_ITER).astype(float)
+
+# --- Condition number approximation ---
+dn    = np.abs(n_base - n_perturb)
+kappa = np.where(n_base > 0, dn / (eps32 * n_base), np.nan)
+
+# --- Observations ---
+print(f"κ max (99th percentile): {np.nanpercentile(kappa, 99):.2e}")
+print(f"Interior pixels (n = MAX_ITER): κ = 0 by definition (set to nan)")
+print(f"Pixels with κ >= 1: {np.sum(kappa >= 1)} / {N*N}")
+
+# --- Plot ---
+cmap_k = plt.cm.hot.copy()
+cmap_k.set_bad('0.25')
+vmax = np.nanpercentile(kappa, 99)
+
+plt.figure(figsize=(7, 6))
+plt.imshow(kappa, cmap=cmap_k, origin='lower',
+           extent=[-0.7530, -0.7490, 0.0990, 0.1030],
+           norm=LogNorm(vmin=1, vmax=vmax))
+plt.colorbar(label=r'$\kappa(c)$  (log scale,  $\kappa \geq 1$)')
+plt.title(r'Condition number approx  $\kappa(c) = |\Delta n|\,/\,(\varepsilon_{32}\,n(c))$')
+plt.xlabel('Re(c)')
+plt.ylabel('Im(c)')
+plt.tight_layout()
+plt.savefig('mandelbrot_sensitivity.png', dpi=150)
 plt.show()
