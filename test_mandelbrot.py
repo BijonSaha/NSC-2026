@@ -54,9 +54,9 @@ def dask_client():
     cluster.close()
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# Numba @njit — compiled function is behaviourally identical to Python version
-# ════════════════════════════════════════════════════════════════════════════
+ 
+# Numba @njit
+
 
 @pytest.mark.parametrize("impl", IMPLEMENTATIONS, ids=["python", "numba"])
 @pytest.mark.parametrize("c, max_iter, expected", KNOWN_CASES)
