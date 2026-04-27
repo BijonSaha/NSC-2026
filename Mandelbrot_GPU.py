@@ -134,4 +134,21 @@ if __name__ == "__main__":
     plt.show()
     print("Saved mandelbrot_gpu_f32.png\n")
 
-    
+    # ═══════════════════════════════════════════════════════════════════════
+    # M2 — Float32 vs Float64
+    # Apple M4 Pro: no cl_khr_fp64 → compare GPU f32 vs Numba f64
+    # ═══════════════════════════════════════════════════════════════════════
+    print("=" * 60)
+    print("M2 — float32 vs float64 comparison")
+    print("  (no cl_khr_fp64 on Apple M4 Pro → GPU f32 vs Numba f64)")
+    print("=" * 60)
+
+    numba_f64(64, X_MIN, X_MAX, Y_MIN, Y_MAX, MAX_ITER)   # Numba f64 warm-up
+
+    for test_N in [N_BENCH, 2048]:
+        t_f32 = gpu_f32_timed(test_N)
+        t_f64 = timed(lambda n=test_N: numba_f64(n, X_MIN, X_MAX, Y_MIN, Y_MAX, MAX_ITER))
+        ratio = t_f64 / t_f32
+        print(f"  N={test_N:5d}:  GPU f32 = {t_f32*1e3:7.1f} ms  |"
+              f"  Numba f64 = {t_f64*1e3:7.1f} ms  |  ratio = {ratio:.2f}x")
+    print()
